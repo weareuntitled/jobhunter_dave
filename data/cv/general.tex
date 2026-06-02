@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[left=1.06cm,top=1.7cm,right=1.06cm,bottom=0.52cm]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\definecolor{accent}{HTML}{0D9488}
+\setlength{\parindent}{0pt}
+\renewcommand\labelitemi{$\circ$}
+\setlist[itemize]{noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, leftmargin=*}
+\hypersetup{colorlinks=true, urlcolor=accent, linkcolor=black}
+\pagestyle{plain}
+\pagenumbering{arabic}
+\begin{document}
+
+\begin{minipage}[c]{0.24\textwidth}
+\includegraphics[width=\linewidth]{<< photo_path >>}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.72\textwidth}
+    {\Large \textbf{<< name >>}}\\[4pt]
+    << title >>\\[6pt]
+    << location >> \;|\; << email >> \;|\; << phone >>\\
+    Portfolio: \href{https://<< portfolio_url >>}{<< portfolio_url >>}
+\end{minipage}
+
+\vspace{10pt}
+
+\begin{center}
+    \textbf{Berufserfahrung}
+\end{center}
+
+<< experience >>
+
+\newpage
+
+\begin{center}
+    \textbf{Technische Skills \& KI-Kompetenz}
+\end{center}
+\noindent
+<< skills_text >>\par
+
+\vspace{8pt}
+
+\begin{center}
+    \textbf{Ausbildung}
+\end{center}
+
+<< education >>
+
+\vspace{8pt}
+
+\begin{center}
+    \textbf{Leadership \& Engagement}
+\end{center}
+
+<< leadership >>
+
+\vspace{8pt}
+
+\begin{center}
+    \textbf{Sprachen}
+\end{center}
+
+<< languages >>
+
+\vspace{12pt}
+
+\begin{center}
+    \rule{\textwidth}{0.3pt}\\[4pt]
+    \textcolor{gray}{\footnotesize
+        Erstellt mit meinem eigenen KI-Bewerbungs-Agenten -- entwickelt und betrieben von mir.\\
+        Dieser CV wurde automatisch auf die Stelle zugeschnitten.\\
+        << date >> -- KI-gestütztes Personal Branding
+    }
+\end{center}
+
+\end{document}

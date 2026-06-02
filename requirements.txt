@@ -1,0 +1,36 @@
+# === Core ===
+python-jobspy==1.1.*
+httpx[http2]==0.28.*
+pydantic==2.10.*
+
+# === Stepstone Scraper ===
+requests==2.32.*
+beautifulsoup4==4.12.*
+lxml==5.3.*
+
+# === Telegram ===
+aiogram==3.15.*
+
+# === Database ===
+aiosqlite==0.21.*
+
+# === Scheduling ===
+rocketry==2.5.*
+
+# === Config ===
+pyyaml==6.0.*
+python-dotenv==1.0.*
+
+# === Utilities ===
+jinja2==3.1.*
+aiosmtplib==3.0.*
+
+# === Mock Server ===
+fastapi==0.115.*
+uvicorn==0.32.*
+
+# === Dev / Testing ===
+pytest==8.3.*
+pytest-asyncio==0.24.*
+ruff==0.8.*
+mypy==1.10.*

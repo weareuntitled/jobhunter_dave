@@ -1,0 +1,221 @@
+search:
+  sites:
+    - linkedin
+    - indeed
+    - stepstone
+  keywords:
+    # --- UX, UI & Product Design ---
+    - "UX Designer"
+    - "UI Designer"
+    - "UX/UI Designer"
+    - "Product Designer"
+    - "Digital Product Designer"
+    - "Senior UX Designer"
+    - "Senior Product Designer"
+    - "Interaction Designer"
+    - "Experience Designer"
+    - "Visual Designer"
+    - "UX Architect"
+    - "Service Designer"
+    - "UX Researcher"
+    - "Design Systems"
+
+    # --- Motion, Media & Content ---
+    - "Motion Designer"
+    - "Motion Graphics Designer"
+    - "Multimedia Designer"
+    - "Digital Creator"
+
+    # --- Agile, Product & Transformation ---
+    - "Product Owner"
+    - "Scrum Master"
+    - "Agile Coach"
+    - "Product Manager"
+    - "Digital Product Manager"
+    - "Technical Product Owner"
+    - "Digital Transformation Manager"
+    - "Innovation Manager"
+    - "Agile Project Manager"
+    - "Delivery Lead"
+
+    # --- AI, LLM & Automation ---
+    - "Artificial Intelligence"
+    - "Machine Learning"
+    - "LLM"
+    - "Prompt Engineer"
+    - "AI Engineer"
+    - "KI Engineer"
+    - "AI Developer"
+    - "AI Product"
+    - "KI-Assistent"
+    - "AI Automation Specialist"
+    - "Workflow Automation"
+    - "Process Automation Engineer"
+    - "Business Automation"
+    - "Low-Code"
+    - "No-Code"
+    - "AI Consultant"
+    - "KI Berater"
+    - "Creative Technologist"
+    - "Conversational AI Designer"
+    - "Generative AI"
+  location: "Germany"
+  results_per_site: 15
+  exclude_portal_only: false
+
+  stepstone:
+    cooldown_hours: 6
+    target_results: 15
+    max_pages: 5
+    radius: 50
+
+filtering:
+  allowed_locations:
+    - augsburg
+    - münchen
+    - munich
+    - ingolstadt
+    - ulm
+    - landsberg
+    - friedberg
+    - neuburg
+    - donauwörth
+    - aichach
+    - germany
+    - deutschland
+    - remote
+    - homeoffice
+    - home office
+    - deutschlandweit
+    - hybrid
+    - berlin
+    - hamburg
+    - köln
+    - cologne
+    - frankfurt
+    - stuttgart
+    - düsseldorf
+    - leipzig
+    - dortmund
+    - bremen
+    - hannover
+    - essen
+    - dresden
+    - duisburg
+    - bochum
+    - bielefeld
+    - bonn
+    - karlsruhe
+    - mannheim
+    - münster
+    - stuttgart
+    - aachen
+    - wuppertal
+    - krefeld
+    - halle
+    - magdeburg
+    - braunschweig
+    - chemnitz
+    - kiel
+    - trier
+    - saarbrücken
+    - passau
+    - erlangen
+    - heidelberg
+    - heilbronn
+    - ulm
+    - freiburg
+    - konstanz
+    - ravensburg
+    - lindau
+    - schwerin
+    - rostock
+  exclude_portal_only: false
+  remote_preference: "remote_first"
+
+thresholds:
+  min_score: 5
+  top_job_score: 8
+  max_daily_applications: 15
+
+go_api:
+  base_url: "http://localhost:8080"
+  evaluate_endpoint: "/api/v1/evaluate"
+  profile_tip_endpoint: "/api/v1/profile-tip"
+  timeout_seconds: 30
+
+telegram:
+  bot_token_env: "TELEGRAM_BOT_TOKEN"
+  chat_id_env: "TELEGRAM_CHAT_ID"
+  language: "de"
+
+smtp:
+  host_env: "SMTP_HOST"
+  port_env: "SMTP_PORT"
+  user_env: "SMTP_USER"
+  password_env: "SMTP_PASSWORD"
+  from_addr_env: "SMTP_FROM"
+
+schedule:
+  hunt_interval_minutes: 60
+  sunday_briefing_hour: 10
+  sunday_briefing_minute: 0
+  quiet_mode_default: false
+
+active_hours:
+  enabled: true
+  timezone: "Europe/Berlin"
+  days:
+    mon: ["08:00", "20:00"]
+    tue: ["08:00", "20:00"]
+    wed: ["08:00", "20:00"]
+    thu: ["08:00", "20:00"]
+    fri: ["08:00", "20:00"]
+    sat: []
+    sun: []
+
+latex:
+  portfolio_url: "portfolio.untitled-ux.de"
+  output_dir: "./output"
+  font: "Inter"
+  template_dir: "./src/latex/templates"
+
+cv:
+  variants_dir: "./data/cv"
+  photo_path: "./data/photo.jpg"
+  salary_range:
+    min: 56000
+    max: 70000
+    currency: "EUR"
+  static_skills:
+    - KI-gestützte Produktentwicklung (Cursor, Ollama, ComfyUI, ChatGPT)
+    - Prompt Engineering & AI Workflow Automation
+    - Lokale LLM-Integration (Docker, FastAPI, lokale Modelle)
+
+profile:
+  master_path: "./data/master_profile.md"
+  voice_samples_dir: "./data/samples"
+
+agent:
+  voice_tone: "semi-radical"
+  languages: ["de", "en"]
+  include_salary: "on_request"
+  include_photo: true
+
+# filtering config is now in search section
+  min_salary_threshold: 50000
+  excluded_companies: []
+
+logging:
+  level: "INFO"
+  format: "json"
+  audit_log_db: true
+
+budget:
+  monthly_api_call_limit: 2000
+  alert_thresholds: [0.5, 0.8, 1.0]
+
+storage:
+  pdf_retention_days: 7
+  applications_log_path: "./output/applications.json"
+  cleanup_unsent: true

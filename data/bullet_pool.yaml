@@ -1,0 +1,111 @@
+# Bullet Pool -- Harvard-Style standardisiert mit Employer-Tags
+# Format: Action Verb → What → How/Method → Impact/Context
+# employer: "8020" = 8020 Consulting, "untitled" = UNTITLED UX/Freelance, "both" = beide
+
+categories:
+  ux_ui_design:
+  - employer: "8020"
+    text: "Komplexe Enterprise-Webtools für Audi, Porsche und VW gestaltet -- von Anwendungslogik über User Journeys bis zu verständlichen Oberflächen, genutzt von hunderten internen Nutzer:innen."
+  - employer: "8020"
+    text: "End-to-End UX-Prozesse verantwortet: User Research, Personas, Wireframes und High-Fidelity-Prototypen in Figma -- von der Discovery bis zur Übergabe an Entwicklung."
+  - employer: "untitled"
+    text: "Usability-Tests geplant, moderiert und ausgewertet -- qualitatives Feedback in konkrete UI-Optimierungen übersetzt und iterativ validiert."
+  - employer: "8020"
+    text: "Informationsarchitektur und User Flows für datenintensive Enterprise-Anwendungen mit rollenbasierten Views entwickelt -- Komplexität für Fachanwender:innen reduziert."
+  - employer: "8020"
+    text: "Design QA und Implementierungsbegleitung: Edge Cases dokumentiert, Übergaben an Entwicklung strukturiert -- Fehlerquote in der Umsetzung gesenkt."
+  - employer: "8020"
+    text: "UX für Mobile Apps (iOS und Android) end-to-end begleitet -- von Discovery über UI-Spezifikation bis zur Entwicklungsübergabe."
+  - employer: "untitled"
+    text: "Designsysteme und Komponentenbibliotheken in Figma aufgebaut -- variantenreich, dokumentiert, skalierbar für mehrere Produktteams."
+
+  product_ownership:
+  - employer: "8020"
+    text: "Als Product Owner und Scrum Master ein Audi-internes Enterprise-Webtool (~500 Nutzer:innen) über 2,5 Jahre geführt -- Backlog-Management, Sprint-Planung, Refinements, Stakeholder-Kommunikation."
+  - employer: "8020"
+    text: "Story-Point-Velocity des Enterprise-Webtool-Teams von ~10 auf ~20 gesteigert durch saubere Backlog-Priorisierung, klarere Acceptance Criteria und fokussierte Sprint-Planung."
+  - employer: "8020"
+    text: "Crossfunktionales Team von 8 Personen als Scrum Master geführt -- Sprint Reviews, Plannings und Retrospektiven moderiert, Team-Effektivität messbar verbessert."
+  - employer: "8020"
+    text: "Komplexe Fachprozesse analysiert und in technische Konzepte sowie priorisierte, sprint-fähige Backlogs übersetzt -- Abstimmung zwischen Business und Entwicklung."
+  - employer: "8020"
+    text: "Agile Abläufe (Scrum/SAFe) in Beratungsprojekten mit aufgebaut und begleitet -- Vorgehensmodelle an Kundenkontext angepasst."
+  - employer: "untitled"
+    text: "Interne Prozesse für Web- und AI-Development mitgestaltet -- Workflows, Qualitätsstandards und Vorgehensmodelle definiert."
+  - employer: "8020"
+    text: "SAFe 6 Scrum Master Zertifizierung (gültig bis Juni 2026) -- Methodenkompetenz in skaliertem agilen Umfeld."
+  - employer: "8020"
+    text: "Workshops mit Fachbereichen moderiert: Anforderungen gesammelt, nach Business Value priorisiert und in validierte Screenkonzepte überführt."
+
+  tech_ki_development:
+  - employer: "untitled"
+    text: "Peters-ERP entwickelt: 138 fragmentierte GW-BASIC-Datenbanken eines Handwerks-KMU in PostgreSQL migriert und FastAPI/React-Frontend aufgebaut -- KI-gestützte Angebotserstellung mit historisch fundierten Leistungsvorschlägen."
+  - employer: "untitled"
+    text: "Lokale LLM-Integration mit Ollama und Docker für administrative Workflows aufgesetzt -- ~4 Stunden pro Woche manuelle Arbeit eingespart."
+  - employer: "8020"
+    text: "KI-gestützte Prozessautomatisierung für ein SAP-System im Enterprise-Automotive-Umfeld entwickelt -- 4 Stunden pro Woche für 10 Fachexpert:innen über 6 Monate eingespart."
+  - employer: "8020"
+    text: "Zwei AI Use Cases für Audi ausgearbeitet -- von der Idee über Konzept und ROI-Berechnung bis zur Übergabe an den Audi AI Hub."
+  - employer: "8020"
+    text: "Angebotserstellung und fachliche Abstimmung für die ROI-Berechnung von KI-Projekten verantwortet -- Business Cases mit Fachbereichen validiert."
+  - employer: "untitled"
+    text: "Unity- und VR/AR-Prototyping im Studienkontext -- mehrere Projekte über 6 Jahre, von Konzeption bis interaktiver Demo."
+  - employer: "untitled"
+    text: "Python (FastAPI, SQLModel), Docker, SQL, HTML/CSS/React produktiv eingesetzt -- für schnelle Prototypen und vollständige Beta-Anwendungen."
+
+  motion_design:
+  - employer: "8020"
+    text: "Stellvertretende Leitung des Motion Design Teams übernommen -- Abstimmung, Freigaben und Qualitätssicherung für Motion Deliverables verantwortet."
+  - employer: "untitled"
+    text: "Explainer-Videos, Pitch-Videos und Template-Systeme konzipiert und umgesetzt -- vom Storyboard über Animation bis zur Finalisierung."
+  - employer: "untitled"
+    text: "Motion Graphics für Social Media, Display und DOOH produziert -- Variantenlogik für Formate, Längen und Kanäle entwickelt."
+  - employer: "untitled"
+    text: "Generative Motion- und AI-Video-Workflows mit ComfyUI aufgebaut -- Image-to-Video, ControlNet und Pose-Steuerung für schnelle Iteration."
+  - employer: "8020"
+    text: "After Effects, Premiere Pro und DaVinci Resolve produktiv eingesetzt -- Schnitt, Animation und plattformspezifische Export-Presets."
+  - employer: "untitled"
+    text: "Motion Branding Template Systems für Musiklabels entwickelt -- wiederverwendbare Intros, Typografie-Bausteine und Layout-Logik."
+  - employer: "untitled"
+    text: "3D-Design und Motion in Blender für Markenauftritte und Social Media umgesetzt -- von Modelling bis gerenderter Animation."
+  - employer: "8020"
+    text: "HTML5- und AMPHTML-Creatives in enger Abstimmung mit Performance Marketing produziert -- Conversion-orientiert und datengetrieben."
+
+  web_cms:
+  - employer: "untitled"
+    text: "10+ digitale Markenauftritte und Websites eigenverantwortlich konzipiert und umgesetzt -- Webflow, WordPress und TYPO3."
+  - employer: "untitled"
+    text: "Lead-Generierung für DeineSpanndecke.de von 0 auf ~2 Leads pro Woche bei 30--40 EUR CPL gesteigert -- durch Landingpage-UX-Optimierung und GA4/GTM-Tracking."
+  - employer: "untitled"
+    text: "Responsive Layouts, Content-Struktur und saubere Übergabe an Entwicklung oder direktes Go-Live umgesetzt."
+  - employer: "untitled"
+    text: "Beratung zu Markenauftritt, Content-Priorisierung und digitaler Sichtbarkeit für kleine und mittlere Unternehmen."
+  - employer: "untitled"
+    text: "n8n-Workflows und CMS-Prozesse für einfache Content-Automatisierung aufgesetzt -- wiederkehrende Aufgaben automatisiert."
+  - employer: "8020"
+    text: "Custom HTML-Embeds und animationsintensive Webflow-Seiten gebaut -- Schnittstelle zwischen CMS und Custom Code."
+  - employer: "untitled"
+    text: "4 Websites über 1 Jahr in TYPO3, WordPress und Webflow betreut -- Content-Pflege, Qualitätssicherung und kontinuierliche Optimierung."
+  - employer: "untitled"
+    text: "WordPress-Rebranding und Performance-Optimierung für DeineSpanndecke.de: Ladezeit von 15s auf 3s reduziert -- Conversion Rate bei stabilen 4 %."
+
+  ki_ml_automation:
+  - employer: "untitled"
+    text: "Eigenen KI-Bewerbungs-Agenten vollständig entwickelt (Python 3.12 async, aiosqlite, httpx, aiogram) -- scraped, matcht, generiert und versendet Bewerbungen autonom."
+  - employer: "untitled"
+    text: "KI-gestützte Produktentwicklung mit Cursor und Codex für Rapid Prototyping eingesetzt -- Concept-to-Code in Tagen statt Wochen."
+  - employer: "8020"
+    text: "AI-Use-Cases mit Fachbereichen strukturiert: Reifegrade definiert, Konversationsdesign entworfen und technische Konzepte für die Umsetzung erarbeitet."
+  - employer: "untitled"
+    text: "KI-Konzeptentwicklung an der Kundenfront: Angebote, Use Cases und User Flows für Automatisierung und Prozessoptimierung ausgearbeitet."
+  - employer: "untitled"
+    text: "ComfyUI-Pipelines für generative Bild- und Videoproduktion aufgebaut -- Image-to-Video, ControlNet und Pose-Steuerung für kreative Workflows."
+  - employer: "8020"
+    text: "GPT-Agent-MVP im medizinischen Umfeld mitentwickelt -- Konversationsfluss, RAG-Struktur und Testing für domänenspezifische Anwendung."
+
+config:
+  total_bullets: 45
+  max_in_cv: 12
+  min_in_cv: 8
+  selection_method: keyword_matching
+  structure: harvard

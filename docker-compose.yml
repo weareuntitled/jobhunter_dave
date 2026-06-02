@@ -1,0 +1,28 @@
+services:
+  job-hunter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-hunter-daemon
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data:ro
+      - ./output:/app/output
+      - sqlite_data:/app/db
+    networks:
+      - agent-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  sqlite_data:
+    driver: local
+
+networks:
+  agent-net:
+    driver: bridge

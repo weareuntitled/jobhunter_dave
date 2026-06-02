@@ -1,0 +1,92 @@
+\documentclass[10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[<< language >>]{babel}
+\usepackage[left=2cm,top=1.4cm,right=2cm,bottom=2.0cm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, linkcolor=black, urlcolor=accent]{hyperref}
+\usepackage{enumitem}
+
+\definecolor{accent}{HTML}{0D9488}
+\definecolor{lightgray}{HTML}{666666}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlist[itemize]{noitemsep, topsep=2pt, leftmargin=1.2em}
+
+% ── 6-Spalten Grid ───────────────────────────────────────────────
+\newlength{\gutter}
+\setlength{\gutter}{10.5pt}
+\newlength{\col}
+\setlength{\col}{\dimexpr(\textwidth - 5\gutter)/6\relax}
+\newlength{\spanThree}
+\setlength{\spanThree}{\dimexpr 3\col + 2\gutter\relax}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9.5pt}{14.5pt}\selectfont
+
+% ── Kopf: Name links, Firma rechts ───────────────────────────────
+\noindent
+\begin{minipage}[t]{\col}
+    {\fontsize{14.5pt}{15pt}\selectfont\bfseries
+    << applicant_name_upper >>}
+\end{minipage}
+\hspace{\gutter}%
+\begin{minipage}[t]{\col}
+\end{minipage}
+\hspace{\gutter}%
+\begin{minipage}[t]{\spanThree}
+    \centering
+    {\bfseries << company >>}\\[6pt]
+    <% if company_logo_path %>
+    \includegraphics[height=1.2cm]{<< company_logo_path >>}
+    <% endif %>
+\end{minipage}
+
+\vspace{12pt}
+
+% ── Betreff + Datum ──────────────────────────────────────────────
+\noindent
+\textbf{<< job_title >>}\hfill << applicant_location >>, << date >>
+
+\vspace{12pt}
+
+% ── Fließtext ab Spalte 3 ────────────────────────────────────────
+\begingroup
+\setlength{\leftskip}{\dimexpr 1\col + 2\gutter\relax}
+\setlength{\rightskip}{0pt}
+
+<< cover_letter_body >>
+
+\vspace{12pt}
+
+<% if salary_expectation %>
+\textbf{Gehaltsvorstellung:} << salary_expectation >> EUR brutto/Jahr
+
+\vspace{8pt}
+<% endif %>
+
+Mein Portfolio finden Sie unter:\\
+\url{<< portfolio_url >>}
+
+Mit freundlichen Gr\"u\ss{}en\\[8pt]
+\textbf{<< applicant_name >>}
+
+\endgroup
+
+\vfill
+
+% ── Footer: KI-Disclosure ─────────────────────────────────────────
+\begin{center}
+    \rule{\textwidth}{0.3pt}\\[4pt]
+    \textcolor{lightgray}{\footnotesize
+        Erstellt mit meinem eigenen KI-Bewerbungs-Agenten -- entwickelt, trainiert und betrieben von mir.\\
+        Dieser Agent analysiert Stellen, matched Profile und generiert personalisierte Bewerbungen.\\
+        Agent-Match: << score >>/10 -- KI-gestütztes Personal Branding -- << date >>
+    }
+\end{center}
+
+\end{document}

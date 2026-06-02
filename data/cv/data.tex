@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[margin=1.2cm,top=1.4cm,bottom=1.8cm]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\definecolor{accent}{HTML}{0D9488}
+\definecolor{darkgray}{HTML}{333333}
+\definecolor{lightgray}{HTML}{666666}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist[itemize]{noitemsep, topsep=2pt, leftmargin=1.2em}
+\hypersetup{colorlinks=true, urlcolor=accent, linkcolor=darkgray}
+\begin{document}
+
+\begin{minipage}[c]{0.22\textwidth}
+    \includegraphics[width=\linewidth]{<< photo_path >>}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.76\textwidth}
+    {\Large\textbf{\textcolor{accent}{<< name >>}}}\\[4pt]
+    \textcolor{lightgray}{<< title >> \textbullet\ KI-gestützt optimiert für diese Stelle}\\[6pt]
+    << location >> \textbullet\ << email >> \textbullet\ << phone >>\\
+    Portfolio: \href{https://<< portfolio_url >>}{<< portfolio_url >>}
+\end{minipage}
+
+\vspace{12pt}
+\rule{\textwidth}{1pt}
+
+\section*{\textcolor{accent}{Berufserfahrung}}
+<< experience >>
+
+\section*{\textcolor{accent}{Technische Skills \& KI-Kompetenz}}
+\begin{itemize}
+<% for skill in skills %>
+    \item << skill >>
+<% endfor %>
+<% for static_skill in static_skills %>
+    \item << static_skill >>
+<% endfor %>
+\end{itemize}
+
+\section*{\textcolor{accent}{Ausbildung}}
+<< education >>
+
+\section*{\textcolor{accent}{Sprachen}}
+<< languages >>
+
+\vfill
+\begin{center}
+    \rule{\textwidth}{0.3pt}\\[4pt]
+    \textcolor{lightgray}{\footnotesize
+        Erstellt mit meinem eigenen KI-Bewerbungs-Agenten -- entwickelt und betrieben von mir.\\
+        Dieser CV wurde automatisch auf die Stelle zugeschnitten.\\
+        << date >> -- \textbf{KI-gestütztes Personal Branding}
+    }
+\end{center}
+
+\end{document}
