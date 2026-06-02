@@ -110,7 +110,11 @@ class MockGoAPIClient(GoAPIClient):
         # Mock cover letter (always ensure min length for validation)
         cover_letter = self._generate_mock_cover_letter(job, profile, language)
         if not cover_letter or len(cover_letter) < 50:
-            cover_letter = "ich bin der KI-Bewerbungs-Agent von Daniel Peters. Mein System hat Ihre Ausschreibung analysiert und ein starkes Match erkannt."
+            cover_letter = (
+                "Ich bin der KI-Bewerbungs-Agent von Daniel Peters. Mein System hat "
+                "Ihre Ausschreibung analysiert und eine deutliche Passung zu seinem "
+                "Profil ermittelt."
+            )
 
         # Mock profile tip for top jobs
         profile_tip = None
@@ -157,21 +161,44 @@ def _template_cover_letter(
     bullets: list[str],
     language: str,
 ) -> str:
-    """Fallback-Template wenn LLM nicht verfügbar."""
+    """Fallback-Template wenn LLM nicht verfügbar.
+
+    Strikt einsprachig, professionell mit Sie/you, 2-3 Absätze,
+    konkrete Bullet-Beispiele als Fließtext eingewoben.
+    """
+
+    years = getattr(profile, "experience_years", None) or 7
 
     if language == "en":
-        return (
-            f"I am the AI job application agent of Daniel Peters. My system analyzed your posting "
-            f"for {job.title} at {job.company} and identified a match.\n\n"
-            f"As a UX/UI Designer & AI Product Specialist, Daniel brings hands-on experience in "
-            f"user research, prototyping, design systems, and product ownership "
-            f"from various project and consulting contexts."
+        body = (
+            f"I am the AI job application agent of Daniel Peters, writing on his behalf. "
+            f"My system analysed your posting for {job.title} at {job.company} and identified "
+            f"a strong match with his profile.\n\n"
+            f"Daniel brings over {years} years of experience across design, product "
+            f"ownership, and applied AI. "
         )
+        if bullets:
+            bullet_text = "; ".join(b.rstrip(".") for b in bullets[:3])
+            body += f"His work covers {bullet_text}. "
+        body += (
+            f"\n\nWhat draws him to {job.company} is the opportunity to apply this experience "
+            f"in a setting that values both craft and measurable impact."
+        )
+        return body
 
-    return (
-        f"Ich bin der KI-Bewerbungs-Agent von Daniel Peters. Mein System hat Ihre Ausschreibung "
-        f"für {job.title} bei {job.company} analysiert und ein Match erkannt.\n\n"
-        f"Als UX/UI Designer & AI Product Specialist bringt Daniel praktische Erfahrung in "
-        f"User Research, Prototyping, Designsystemen und Product Ownership "
-        f"aus verschiedenen Projekt- und Beratungskontexten mit."
+    body = (
+        f"Ich bin der KI-Bewerbungs-Agent von Daniel Peters und schreibe Ihnen in seinem "
+        f"Auftrag. Mein System hat Ihre Ausschreibung für {job.title} bei {job.company} "
+        f"analysiert und eine deutliche Passung zu seinem Profil ermittelt.\n\n"
+        f"Daniel bringt über {years} Jahre Berufserfahrung an der Schnittstelle von Design, "
+        f"Produktverantwortung und angewandter künstlicher Intelligenz mit. "
     )
+    if bullets:
+        bullet_text = "; ".join(b.rstrip(".") for b in bullets[:3])
+        body += f"Seine Arbeit umfasst {bullet_text}. "
+    body += (
+        f"\n\nWas ihn an {job.company} besonders anspricht, ist die Möglichkeit, diese "
+        f"Erfahrung in einem Umfeld einzubringen, das sowohl gestalterische Qualität als "
+        f"auch messbaren Impact verlangt."
+    )
+    return body

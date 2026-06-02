@@ -47,6 +47,15 @@ def _build_system_prompt(language: str) -> str:
         '- Beziehe dich konkret auf die Stellenbeschreibung (2–3 klare Passungen).\n'
         '- Nutze Bulletpoints nur als Material zum Einweben (nicht als Liste).\n'
         '- Daniel nur in 3. Person erwähnen.\n\n'
+        "Sprache (strikt):\n"
+        '- Schreibe KOMPLETT in der Zielsprache – keine Sprachmischung.\n'
+        '- Auf DEUTSCH: Nutzerforschung, Prototypenbau, Designsysteme, '
+        'Produktverantwortung, Sprint-Planung, KI (statt "User Research", "Prototyping", '
+        '"Product Ownership", "Sprint Planning", "AI").\n'
+        '- Auf ENGLISCH: User Research, Prototyping, Design Systems, Product Ownership, '
+        'Sprint Planning, AI.\n'
+        '- Anglizismen nur, wenn sie im Deutschen etabliert sind (z.B. "Sprint", '
+        '"Backlog", "Enterprise").\n\n'
         "Ausschlüsse (strikt):\n"
         '- Keine Floskeln: "Sehr geehrte…", "Damen und Herren".\n'
         '- Keine Gesprächseinladung: "Gespräch", "Einladung", "Lassen Sie uns", "Vereinbaren", "Kontaktieren Sie".\n'
@@ -56,46 +65,10 @@ def _build_system_prompt(language: str) -> str:
         "Format:\n"
         '- 2–3 kurze Absätze, kein Heading, keine Bullet-Listen.\n'
         '- Max. ~180–220 Wörter.\n'
-        '- Konsequent "Sie".\n\n'
+        '- Konsequent "Sie" (Deutsch) bzw. "you" (Englisch).\n'
+        '- Professioneller Ton: präzise, sachlich, keine Füllwörter.\n\n'
         "Output: Nur der reine Text, keine Erklärungen."
     )
-
-
-async def generate_cover_letter(
-    job: JobListing,
-    profile: ProfileSummary,
-    bullets: list[str],
-    language: str = "de",
-) -> str:
-    """Generiert Anschreiben via konfiguriertem LLM-Provider (Ollama/OpenRouter/DeepSeek)."""
-    provider = LLM_PROVIDER
-
-    if provider == "ollama":
-        model = await _find_ollama_model()
-        if model:
-            text = await _call_ollama(job, profile, bullets, language, model)
-            if text:
-                return text
-        logger.info("   Ollama nicht verfügbar – Fallback")
-
-    if provider in ("openrouter", "ollama"):
-        api_key = os.environ.get("OPENROUTER_API_KEY")
-        if api_key:
-            text = await _call_openrouter(job, profile, bullets, language, api_key)
-            if text:
-                return text
-            logger.info("   OpenRouter nicht verfügbar – Fallback")
-
-    if provider in ("deepseek", "openrouter", "ollama"):
-        api_key = os.environ.get("DEEPSEEK_API_KEY")
-        if api_key:
-            text = await _call_deepseek(job, profile, bullets, language, api_key)
-            if text:
-                return text
-            logger.info("   DeepSeek nicht verfügbar – Fallback")
-
-    logger.info("   Kein LLM verfügbar – nutze Template")
-    return _template_cover_letter(job, profile, bullets, language)
 
 
 async def _find_ollama_model() -> str | None:
@@ -240,6 +213,160 @@ async def _call_deepseek(
         return None
 
 
+async def _call_critic(
+    draft: str,
+    job: JobListing,
+    profile: ProfileSummary,
+    language: str,
+    api_key: str,
+) -> str | None:
+    """Critic-Pass: LLM bewertet und überarbeitet den Draft.
+
+    Erwartet JSON-Antwort: {"score": float, "revised": "..."}
+    Gibt die überarbeitete Version zurück, oder None bei Fehler.
+    """
+    lang_label = "Deutsch" if language == "de" else "Englisch"
+    model = os.environ.get("OPENROUTER_CRITIC_MODEL", "google/gemini-2.0-flash-001")
+
+    system_prompt = (
+        "Du bist ein erfahrener HR-Consultant und Copy-Editor, der Anschreiben "
+        "für technologie-orientierte Bewerber reviewt.\n\n"
+        "Deine Aufgabe: Bewerte den folgenden Anschreiben-Draft und überarbeite ihn.\n\n"
+        "Bewertungskriterien (jedes 1-10):\n"
+        "1. ARGUMENTATION: Macht der Text eine überzeugende Case, oder listet er nur Fakten?\n"
+        "2. SPRACHE: Ist der Text konsequent in der Zielsprache (keine Sprachmischung)?\n"
+        "3. TON: Professionell ohne steif zu wirken? Konsequent Sie/you?\n"
+        "4. SPEZIFITÄT: Sind Behauptungen mit konkreten Belegen (Jahre, Projekte, Zahlen) gestützt?\n"
+        "5. HOOK: Ist der Einstieg stark oder generisch?\n"
+        "6. ABSCHLUSS: Wird klar, welchen Wert der Bewerber konkret bringt?\n\n"
+        "Antworte NUR mit validem JSON in diesem Format:\n"
+        "{\n"
+        '  "score": 7.5,\n'
+        '  "issues": ["schwacher Hook", "fehlende konkrete Belege"],\n'
+        '  "revised": "Überarbeiteter Text - gleiche Sprache, gleiche Länge, 2-3 Absätze"\n'
+        "}\n\n"
+        "WICHTIG: Im 'revised' Feld:\n"
+        "- Konsequent in der Zielsprache\n"
+        '- Mit "Ich bin der KI-Bewerbungs-Agent" beginnen\n'
+        "- Konsequent Sie/you\n"
+        '- Keine technischen Tools (ERP, WordPress, Ollama, ComfyUI, n8n)\n'
+        "- Max 220 Wörter\n"
+        "- NUR das JSON-Objekt, KEINE Markdown-Backticks, KEINE Erklärungen"
+    )
+
+    user_prompt = (
+        f"Stelle: {job.title} @ {job.company}, {job.location}\n"
+        f"Sprache: {lang_label}\n\n"
+        f"Profil: {profile.title} | {profile.experience_years} Jahre\n\n"
+        f"--- DRAFT ---\n{draft}\n--- ENDE DRAFT ---\n\n"
+        f"Bewerte und überarbeite."
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "HTTP-Referer": "https://github.com/untitled-ux",
+                },
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": 0.4,
+                    "max_tokens": 1000,
+                    "response_format": {"type": "json_object"},
+                },
+            )
+            if resp.status_code != 200:
+                logger.warning(f"Critic error {resp.status_code}: {resp.text[:200]}")
+                return None
+            content = resp.json()["choices"][0]["message"].get("content")
+            if not content:
+                return None
+            data = json.loads(content)
+            revised = data.get("revised", "").strip()
+            score = data.get("score", 0)
+            issues = data.get("issues", [])
+            if not revised or len(revised) < 50:
+                logger.warning("Critic lieferte leeren/zu kurzen revised-Text")
+                return None
+            logger.info(
+                f"✅ Critic – Score {score}/10, {len(revised)} chars, "
+                f"Issues: {len(issues)}"
+            )
+            return revised
+    except json.JSONDecodeError as e:
+        logger.warning(f"Critic lieferte kein valides JSON: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"Critic call failed: {e}")
+        return None
+
+
+async def generate_cover_letter(
+    job: JobListing,
+    profile: ProfileSummary,
+    bullets: list[str],
+    language: str = "de",
+    use_critic: bool = True,
+) -> str:
+    """Generiert Anschreiben via Draft + Critic Pattern.
+
+    1. Draft via Ollama/OpenRouter/DeepSeek/Template
+    2. Wenn Draft von LLM kam UND OpenRouter-Key vorhanden: Critic überarbeitet
+    3. Bei Critic-Fehler: Original-Draft zurückgeben
+    """
+    provider = LLM_PROVIDER
+    draft: str | None = None
+    draft_from_llm = False
+
+    if provider == "ollama":
+        model = await _find_ollama_model()
+        if model:
+            draft = await _call_ollama(job, profile, bullets, language, model)
+            if draft:
+                draft_from_llm = True
+
+    if not draft and provider in ("openrouter", "ollama"):
+        api_key = os.environ.get("OPENROUTER_API_KEY")
+        if api_key:
+            draft = await _call_openrouter(job, profile, bullets, language, api_key)
+            if draft:
+                draft_from_llm = True
+
+    if not draft and provider in ("deepseek", "openrouter", "ollama"):
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if api_key:
+            draft = await _call_deepseek(job, profile, bullets, language, api_key)
+            if draft:
+                draft_from_llm = True
+
+    if not draft:
+        logger.info("   Kein LLM verfügbar – nutze Template")
+        return _template_cover_letter(job, profile, bullets, language)
+
+    if not use_critic or not draft_from_llm:
+        return draft
+
+    critic_key = os.environ.get("OPENROUTER_API_KEY")
+    if not critic_key:
+        logger.info("   Kein OpenRouter-Key für Critic – Draft behalten")
+        return draft
+
+    logger.info("🔍 Critic-Pass läuft...")
+    revised = await _call_critic(draft, job, profile, language, critic_key)
+    if revised:
+        logger.info(f"   Draft ({len(draft)}c) → Revised ({len(revised)}c)")
+        return revised
+
+    logger.info("   Critic fehlgeschlagen – Draft behalten")
+    return draft
+
+
 def _build_bullet_text(bullets: list[str]) -> str:
     return "\n".join(f"- {b}" for b in bullets[:4])
 
@@ -281,24 +408,47 @@ def _template_cover_letter(
     bullets: list[str],
     language: str,
 ) -> str:
-    """Fallback-Template wenn kein LLM verfügbar."""
+    """Fallback-Template wenn kein LLM verfügbar.
+
+    Strikt einsprachig (Deutsch ODER Englisch), professionell mit Sie/you,
+    2-3 Absätze, konkrete Bullet-Beispiele als Fließtext eingewoben.
+    """
+
+    years = getattr(profile, "experience_years", None) or 7
 
     if language == "en":
-        return (
-            f"I am the AI job application agent of Daniel Peters. My system analyzed your posting "
-            f"for {job.title} at {job.company} and identified a match.\n\n"
-            f"As a UX/UI Designer & AI Product Specialist, Daniel brings hands-on experience in "
-            f"user research, prototyping, design systems, and product ownership "
-            f"from various project and consulting contexts."
+        body = (
+            f"I am the AI job application agent of Daniel Peters, writing on his behalf. "
+            f"My system analysed your posting for {job.title} at {job.company} and identified "
+            f"a strong match with his profile.\n\n"
+            f"Daniel brings over {years} years of experience across design, product "
+            f"ownership, and applied AI. "
         )
+        if bullets:
+            bullet_text = "; ".join(b.rstrip(".") for b in bullets[:3])
+            body += f"His work covers {bullet_text}. "
+        body += (
+            f"\n\nWhat draws him to {job.company} is the opportunity to apply this experience "
+            f"in a setting that values both craft and measurable impact."
+        )
+        return body
 
-    return (
-        f"ich bin der KI-Bewerbungs-Agent von Daniel Peters. Mein System hat Ihre Ausschreibung "
-        f"für {job.title} bei {job.company} analysiert und ein starkes Match erkannt.\n\n"
-        f"Als UX/UI Designer & AI Product Specialist bringt Daniel praktische Erfahrung in "
-        f"User Research, Prototyping, Designsystemen und Product Ownership "
-        f"aus verschiedenen Projekt- und Beratungskontexten mit."
+    body = (
+        f"Ich bin der KI-Bewerbungs-Agent von Daniel Peters und schreibe Ihnen in seinem "
+        f"Auftrag. Mein System hat Ihre Ausschreibung für {job.title} bei {job.company} "
+        f"analysiert und eine deutliche Passung zu seinem Profil ermittelt.\n\n"
+        f"Daniel bringt über {years} Jahre Berufserfahrung an der Schnittstelle von Design, "
+        f"Produktverantwortung und angewandter künstlicher Intelligenz mit. "
     )
+    if bullets:
+        bullet_text = "; ".join(b.rstrip(".") for b in bullets[:3])
+        body += f"Seine Arbeit umfasst {bullet_text}. "
+    body += (
+        f"\n\nWas ihn an {job.company} besonders anspricht, ist die Möglichkeit, diese "
+        f"Erfahrung in einem Umfeld einzubringen, das sowohl gestalterische Qualität als "
+        f"auch messbaren Impact verlangt."
+    )
+    return body
 
 
 # ── Job-Detail-Extraktion für Swipe-Karten ──────────────────────

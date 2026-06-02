@@ -1,5 +1,6 @@
 """tests/test_cover_letter.py – Anschreiben-Tests: Template-Rendering, Fallback, Extrem-Cases."""
 
+import os
 import re
 import yaml
 from datetime import datetime
@@ -138,7 +139,7 @@ class TestCoverLetterTemplate:
         """DT Cover-Letter: Template hat alle Sektionen."""
         tex = render_cover_letter(language="de")
         assert "\\documentclass" in tex
-        assert "Berufserfahrung" not in tex  # Kein CV-Content
+        assert "\\textbf{Berufserfahrung}" not in tex  # Kein CV-Section-Header
         assert "DANIEL PETERS" in tex
         assert "FLUID Design" in tex or "das Unternehmen" in tex
 
@@ -237,6 +238,80 @@ class TestCoverLetterTone:
         body = _template_cover_letter(_make_job(), _make_profile(), [], "de")
         assert "Daniel" in body, "Daniel nicht im Body erwähnt"
 
+    def test_german_template_no_english_terms(self):
+        """DT Template: statischer Text ohne englische UX-Begriffe."""
+        from src.agent.llm_client import _template_cover_letter
+        # Test mit LEERER Bullet-Liste, damit nur Template-Text geprüft wird
+        body = _template_cover_letter(_make_job(), _make_profile(), [], "de")
+        forbidden_en_in_de = [
+            "User Research", "Prototyping", "Product Ownership",
+            "Sprint Planning", "Backlog Management", "Insights",
+            "Workflow", "stakeholder",
+        ]
+        for term in forbidden_en_in_de:
+            assert term not in body, (
+                f"Englischer Begriff '{term}' in deutschem Cover Letter gefunden"
+            )
+
+    def test_english_template_no_german_terms(self):
+        """EN Template: statischer Text ohne deutsche UX-Begriffe."""
+        from src.agent.llm_client import _template_cover_letter
+        body = _template_cover_letter(
+            _make_job(company="Acme", title="UX Designer"),
+            _make_profile(), [], "en",
+        )
+        forbidden_de_in_en = [
+            "Nutzerforschung", "Prototypenbau", "Produktverantwortung",
+            "Sprint-Planung", "Backlog-Pflege", "Berufserfahrung",
+            "Fachbereiche", "gestalterische",
+        ]
+        for term in forbidden_de_in_en:
+            assert term not in body, (
+                f"Deutscher Begriff '{term}' in englischem Cover Letter gefunden"
+            )
+
+    def test_german_template_capitalizes_ich(self):
+        """DT Template: 'Ich' am Satzanfang, nicht 'ich'."""
+        from src.agent.llm_client import _template_cover_letter
+        body = _template_cover_letter(_make_job(), _make_profile(), [], "de")
+        assert not re.search(r"(^|\.\s+)ich\s", body), (
+            f"'ich' kleingeschrieben am Satzanfang: {body[:200]!r}"
+        )
+        assert "Ich bin" in body or "Ich schreibe" in body
+
+    def test_german_template_uses_sie_form(self):
+        """DT Template: 'Sie' als Anrede, nicht 'Du'."""
+        from src.agent.llm_client import _template_cover_letter
+        body = _template_cover_letter(_make_job(), _make_profile(), [], "de")
+        assert re.search(r"\bIhnen\b|\bSie\b", body), (
+            "Keine 'Sie/Ihnen' Anrede im deutschen Cover Letter"
+        )
+
+    def test_english_template_uses_you_form(self):
+        """EN Template: 'you' als Anrede."""
+        from src.agent.llm_client import _template_cover_letter
+        body = _template_cover_letter(
+            _make_job(company="Acme", title="UX Designer"),
+            _make_profile(), [], "en",
+        )
+        assert re.search(r"\byou\b|\byour\b", body), (
+            "Keine 'you/your' Anrede im englischen Cover Letter"
+        )
+
+    def test_bullets_are_woven_into_prose(self):
+        """Bullet-Points werden als Fließtext eingewoben, nicht als Liste."""
+        from src.agent.llm_client import _template_cover_letter
+        bullets = [
+            "End-to-End UX-Prozesse verantwortet",
+            "Designsysteme in Figma aufgebaut",
+            "Sprint-Planung moderiert",
+        ]
+        body_de = _template_cover_letter(_make_job(), _make_profile(), bullets, "de")
+        assert "End-to-End UX-Prozesse" in body_de
+        assert "Designsysteme in Figma" in body_de or "Designsysteme" in body_de
+        assert "Sprint-Planung" in body_de
+        assert "•" not in body_de and "\n-" not in body_de
+
 
 class TestCoverLetterExtreme:
     """Extrem-Covers für ungewöhnliche Jobs."""
@@ -332,3 +407,143 @@ class TestCoverLetterExtreme:
         for s in [1, 5, 10]:
             tex = render_cover_letter(score=s)
             assert f"{s}/10" in tex
+
+
+class TestCoverLetterCritic:
+    """Draft + Critic Pattern Tests."""
+
+    def test_critic_function_exists(self):
+        """Critic-Funktion ist importierbar."""
+        from src.agent.llm_client import _call_critic
+        assert callable(_call_critic)
+
+    def test_generate_cover_letter_has_use_critic_param(self):
+        """generate_cover_letter akzeptiert use_critic=False zum Überspringen."""
+        import inspect
+        from src.agent.llm_client import generate_cover_letter
+        sig = inspect.signature(generate_cover_letter)
+        assert "use_critic" in sig.parameters
+        assert sig.parameters["use_critic"].default is True
+
+    def test_critic_called_with_draft(self):
+        """Critic wird mit Draft aufgerufen und gibt revised zurück."""
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from src.agent.llm_client import _call_critic
+        from src.agent.schemas import JobListing, ProfileSummary
+        from tests.test_cover_letter import _make_job, _make_profile
+
+        job = _make_job()
+        profile = _make_profile()
+        mock_response = {
+            "choices": [{
+                "message": {
+                    "content": '{"score": 8.5, "issues": ["weak hook"], "revised": "Ich bin der KI-Bewerbungs-Agent. Überarbeiteter Text mit stärkerem Hook."}'
+                }
+            }]
+        }
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__.return_value = mock_client
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.json.return_value = mock_response
+            mock_client.post.return_value = mock_resp
+            mock_client_cls.return_value = mock_client
+
+            import asyncio
+            result = asyncio.run(_call_critic(
+                "Draft text", job, profile, "de", "fake-key"
+            ))
+
+        assert result is not None
+        assert "Ich bin der KI-Bewerbungs-Agent" in result
+        assert "Überarbeiteter Text" in result
+
+    def test_critic_returns_none_on_invalid_json(self):
+        """Critic gibt None zurück bei invalid JSON."""
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from src.agent.llm_client import _call_critic
+        from tests.test_cover_letter import _make_job, _make_profile
+
+        job = _make_job()
+        profile = _make_profile()
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__.return_value = mock_client
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.json.return_value = {
+                "choices": [{"message": {"content": "not valid json"}}]
+            }
+            mock_client.post.return_value = mock_resp
+            mock_client_cls.return_value = mock_client
+
+            import asyncio
+            result = asyncio.run(_call_critic(
+                "Draft", job, profile, "de", "fake-key"
+            ))
+
+        assert result is None
+
+    def test_critic_returns_none_on_api_error(self):
+        """Critic gibt None zurück bei API-Fehler."""
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from src.agent.llm_client import _call_critic
+        from tests.test_cover_letter import _make_job, _make_profile
+
+        job = _make_job()
+        profile = _make_profile()
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client.__aenter__.return_value = mock_client
+            mock_resp = MagicMock()
+            mock_resp.status_code = 429
+            mock_resp.text = "rate limited"
+            mock_client.post.return_value = mock_resp
+            mock_client_cls.return_value = mock_client
+
+            import asyncio
+            result = asyncio.run(_call_critic(
+                "Draft", job, profile, "de", "fake-key"
+            ))
+
+        assert result is None
+
+    def test_critic_skipped_when_use_critic_false(self):
+        """Wenn use_critic=False, wird kein Critic-Call gemacht."""
+        from unittest.mock import AsyncMock, patch
+        from src.agent.llm_client import generate_cover_letter
+        from tests.test_cover_letter import _make_job, _make_profile
+
+        job = _make_job()
+        profile = _make_profile()
+        draft_text = "Ich bin der KI-Bewerbungs-Agent von Daniel Peters. Mein System hat Ihre Ausschreibung analysiert."
+
+        with patch.dict(os.environ, {"OPENROUTER_API_KEY": "fake-key"}), \
+             patch("src.agent.llm_client._call_openrouter", new_callable=AsyncMock) as mock_or, \
+             patch("src.agent.llm_client._call_critic", new_callable=AsyncMock) as mock_critic:
+            mock_or.return_value = draft_text
+            mock_critic.return_value = "SHOULD NOT BE CALLED"
+
+            import asyncio
+            result = asyncio.run(generate_cover_letter(
+                job, profile, [], "de", use_critic=False
+            ))
+
+        assert result == draft_text
+        mock_critic.assert_not_called()
+
+    def test_critic_prompt_contains_argumentation_criteria(self):
+        """System-Prompt des Critics enthält alle 6 Bewertungskriterien."""
+        from src.agent.llm_client import _call_critic
+        import inspect
+        src = inspect.getsource(_call_critic)
+        assert "ARGUMENTATION" in src
+        assert "SPRACHE" in src
+        assert "TON" in src
+        assert "SPEZIFITÄT" in src
+        assert "HOOK" in src
+        assert "ABSCHLUSS" in src
